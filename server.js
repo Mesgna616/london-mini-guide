@@ -85,7 +85,10 @@ app.get("/", (req, res) => {
                 <li><strong>/colleges</strong> to get colleges data of London</li>
                 <li><strong>/doctors</strong> to get doctors data of London</li>
                 <li><strong>/hospitals</strong> to get all hospitals data of London</li>
-              </ul></div>`);
+              </ul>
+              <p>mesgna mehari</p>
+              </div>`) ;
+         
 });
 
 const port = process.env.port || 5000;
