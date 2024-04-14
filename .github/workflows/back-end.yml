@@ -16,12 +16,20 @@ jobs:
           
       - name: Create SSH
         run: |
-          bash -c 'mkdir -p ~/.ssh/ && echo "${{ secrets.MY_SECRET_SSH_KEY}}" > ~/.ssh/secretKey.pem && chmod 400 ~/.ssh/secretKey.pem'
+          bash -c 'mkdir -p ~/.ssh/ && echo "${{ secrets.MY_SECRET_SSH_KEY }}" > ~/.ssh/secretKey.pem && chmod 400 ~/.ssh/secretKey.pem'
         
-      - name: Build and push Docker image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Build Docker image
         run: |
           docker build -t mesgna/london-mini-guide:latest .
-          docker login -u ${{ secrets.DOCKER_USERNAME}} -p ${{ secrets.DOCKER_PASSWORD}}
+          
+      - name: Push Docker image to Docker Hub
+        run: |
           docker push mesgna/london-mini-guide:latest
           
       - name: Connect to EC2 and Run Container
@@ -33,6 +41,9 @@ jobs:
             # Stop and remove existing container (handle potential errors)
             docker stop london-mini-guide || true
             docker rm london-mini-guide || true
+  
+            # Pull the latest Docker image
+            docker pull mesgna/london-mini-guide:latest
   
             # Run the new container with environment variables (consider secrets management)
             docker run -d -p 5100:5100 --name london-mini-guide mesgna/london-mini-guide:latest
