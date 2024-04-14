@@ -39,5 +39,5 @@ jobs:
             docker rm london-mini-guide || true
   
             # Run the new container with environment variables (consider secrets management)
-            docker run -d -p 5100:5000 --name london-mini-guide mesgna/london-mini-guide:latest
+            docker run -d -p 5100:5100 --name london-mini-guide mesgna/london-mini-guide:latest
           EOF

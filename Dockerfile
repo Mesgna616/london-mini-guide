@@ -14,7 +14,7 @@ RUN npm install && npm install -g nodemon
 COPY . .
 
 # Expose port 3000 (assuming your application listens on this port)
-EXPOSE 5000
+EXPOSE 5100
 
 # Set the user to run the application
 USER node
