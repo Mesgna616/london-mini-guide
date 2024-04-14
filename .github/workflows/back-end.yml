@@ -16,12 +16,12 @@ jobs:
           
       - name: Create SSH
         run: |
-          bash -c 'mkdir -p ~/.ssh/ && echo "${{ secrets.MY_SECRET_SSH_KEY }}" > ~/.ssh/secretKey.pem && chmod 400 ~/.ssh/secretKey.pem'
+          bash -c 'mkdir -p ~/.ssh/ && echo "${{ secrets.MY_SECRET_SSH_KEY}}" > ~/.ssh/secretKey.pem && chmod 400 ~/.ssh/secretKey.pem'
         
       - name: Build and push Docker image
         run: |
           docker build -t mesgna/london-mini-guide:latest .
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+          docker login -u ${{ secrets.DOCKER_USERNAME}} -p ${{ secrets.DOCKER_PASSWORD}}
           docker push mesgna/london-mini-guide:latest
           
       - name: Connect to EC2 and Run Container
