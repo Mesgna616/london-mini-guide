@@ -1,0 +1,45 @@
+name: EC2 Deploy
+
+on:
+  push:
+    branches:
+      - "*"
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with: 
+          ref: ${{ github.ref }}
+          # Exclude node_modules directory
+          fetch-depth: 0
+          
+      - name: Create private key
+        run: |
+          mkdir ~/.ssh/
+          echo "${{ secrets.MY_SECRET_SSH_KEY }}" > ~/.ssh/secretKey.pem
+          chmod 400 ~/.ssh/secretKey.pem
+
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull Docker image
+        run: |
+          docker pull mesgna/london-mini-guide:latest
+
+          name: Connect to EC2 and Run Container
+          run: |
+            ssh -i ~/.ssh/secretKey.pem -o StrictHostKeyChecking=no ubuntu@ec2-35-176-144-41.eu-west-2.compute.amazonaws.com <<'EOF'
+              # Navigate to the project directory
+              cd ~/project-2/london-mini-guide
+  
+              # Stop and remove existing container (handle potential errors)
+              docker stop london-mini-guide || true
+              docker rm london-mini-guide || true
+  
+              # Run the new container with environment variables (consider secrets management)
+              docker run -d -p 5100:5000 --name london-mini-guide mesgna/london-mini-guide:latest
+  
+            EOF
