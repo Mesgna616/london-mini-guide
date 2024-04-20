@@ -36,7 +36,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/secretKey.pem -o StrictHostKeyChecking=no ubuntu@ec2-35-176-144-41.eu-west-2.compute.amazonaws.com <<'EOF'
             # Navigate to the project directory
-            cd ~/project-2/london-mini-guide
+           
   
             # Stop and remove existing container (handle potential errors)
             docker stop london-mini-guide || true
