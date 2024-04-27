@@ -35,8 +35,11 @@ jobs:
       - name: Connect to EC2 and Run Container
         run: |
           ssh -i ~/.ssh/secretKey.pem -o StrictHostKeyChecking=no ubuntu@ec2-35-176-144-41.eu-west-2.compute.amazonaws.com <<'EOF'
-            # Navigate to the project directory
-           
+         
+            # Remove old Docker images except the latest one
+            docker images --filter "dangling=true" --filter=reference='mesgna/london-mini-guide*' -q \
+              | grep -v "$(docker images --filter=reference='mesgna/london-mini-guide:latest' -q)" \
+              | xargs -r docker rmi -f
   
             # Stop and remove existing container (handle potential errors)
             docker stop london-mini-guide || true
