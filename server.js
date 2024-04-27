@@ -2,11 +2,26 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const redis = require('redis');
-const client = redis.createClient();
+const dotenv = require("dotenv");
+const path = require("path"); // Don't forget to import path module for resolving the .env file path
 
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Create a Redis client with specified options
+const client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+
+
+// Handle Redis connection errors
+client.on("error", function (err) {
+  console.error("Redis error:", err);
+});
+
 
 const harrow = require("./data/Harrow.json");
 const heathrow = require("./data/Heathrow.json");

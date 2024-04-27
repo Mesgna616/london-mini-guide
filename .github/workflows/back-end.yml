@@ -18,11 +18,6 @@ jobs:
         run: |
           bash -c 'mkdir -p ~/.ssh/ && echo "${{ secrets.MY_SECRET_SSH_KEY }}" > ~/.ssh/secretKey.pem && chmod 400 ~/.ssh/secretKey.pem'
         
-      - name: Install Redis
-        run: |
-          sudo apt update
-          sudo apt install redis-server -y
-          
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -31,8 +26,7 @@ jobs:
           
       - name: Build Docker image
         run: |
-         docker build --no-cache -t mesgna/london-mini-guide:latest .
-
+          docker build --no-cache -t mesgna/london-mini-guide:latest .
           
       - name: Push Docker image to Docker Hub
         run: |
@@ -41,19 +35,16 @@ jobs:
       - name: Connect to EC2 and Run Container
         run: |
           ssh -i ~/.ssh/secretKey.pem -o StrictHostKeyChecking=no ubuntu@ec2-35-176-144-41.eu-west-2.compute.amazonaws.com <<'EOF'
-         
-            # Remove old Docker images except the latest one
-            docker images --filter "dangling=true" --filter=reference='mesgna/london-mini-guide*' -q \
-              | grep -v "$(docker images --filter=reference='mesgna/london-mini-guide:latest' -q)" \
-              | xargs -r docker rmi -f
-  
             # Stop and remove existing container (handle potential errors)
             docker stop london-mini-guide || true
             docker rm london-mini-guide || true
-  
+            
             # Pull the latest Docker image
             docker pull mesgna/london-mini-guide:latest
-  
+            
             # Run the new container with environment variables (consider secrets management)
-            docker run -d -p 5100:5100 --name london-mini-guide mesgna/london-mini-guide:latest
+            docker run -d -p 5100:5100 --name london-mini-guide \
+              -e REDIS_HOST=127.0.0.1 \
+              -e REDIS_PORT=6379 \
+              mesgna/london-mini-guide:latest
           EOF
