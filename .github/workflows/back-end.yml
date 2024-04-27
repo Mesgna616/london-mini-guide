@@ -26,7 +26,8 @@ jobs:
           
       - name: Build Docker image
         run: |
-          docker build -t mesgna/london-mini-guide:latest .
+         docker build --no-cache -t mesgna/london-mini-guide:latest .
+
           
       - name: Push Docker image to Docker Hub
         run: |
