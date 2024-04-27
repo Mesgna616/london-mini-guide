@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const redis = require('redis');
+const client = redis.createClient();
 
 app.use(cors());
 app.use(express.json());
@@ -15,13 +17,37 @@ const AllArea = [harrow, heathrow, stratford];
 
 const areas = ["harrow", "heathrow", "stratford"];
 
+// Route to fetch pharmacies
 app.get("/pharmacies", (req, res) => {
+  // Check if pharmacies data is cached in Redis
+  client.get('pharmacies', (err, cachedData) => {
+    if (err) {
+      console.error('Redis error:', err);
+      // If there's an error with Redis, proceed without caching
+      fetchAndSendPharmacies(res);
+    } else if (cachedData) {
+      // If data is cached, send it as the response
+      res.send(JSON.parse(cachedData));
+    } else {
+      // If data is not cached, fetch it from the database
+      fetchAndSendPharmacies(res);
+    }
+  });
+});
+
+// Function to fetch pharmacies from the database and cache the result
+function fetchAndSendPharmacies(res) {
   let listOfPharmacies = [];
   AllArea.map((area) => {
     area.pharmacies.map((element) => listOfPharmacies.push(element));
   });
+
+  // Cache the pharmacies data in Redis for future use
+  client.setex('pharmacies', 3600, JSON.stringify(listOfPharmacies)); // Cache for 1 hour (3600 seconds)
+
+  // Send the pharmacies data as the response
   res.send(listOfPharmacies);
-});
+}
 
 app.get("/colleges", (req, res) => {
   listOfColleges = [];
