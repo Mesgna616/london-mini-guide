@@ -8,16 +8,16 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install && npm install -g nodemon
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Expose port 3000 (assuming your application listens on this port)
+# Expose port 5100 (assuming your application listens on this port)
 EXPOSE 5100
 
 # Set the user to run the application
 USER node
 
-# Set the entry point to use nodemon
-ENTRYPOINT ["nodemon", "server.js"]
+# Command to start the application
+CMD ["node", "server.js"]
